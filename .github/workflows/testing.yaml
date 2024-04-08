@@ -34,6 +34,9 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+      env:
+        METRON__USERNAME: ${{ secrets.METRON__USERNAME }}
+        METRON__PASSWORD: ${{ secrets.METRON__PASSWORD }}
 
   collector:
     needs: [test]
