@@ -36,16 +36,16 @@ class Program
 public class Metron
 {
     private static readonly ILog _logger = LogManager.GetLogger(typeof(Metron));
-    private static readonly HttpClient _client = new()
-    {
-        BaseAddress = new Uri("https://metron.cloud/api/"),
-        Timeout = TimeSpan.FromSeconds(30)
-    };
     private static readonly JsonSerializerOptions _options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         NumberHandling = JsonNumberHandling.AllowReadingFromString
+    };
+    private readonly HttpClient _client = new()
+    {
+        BaseAddress = new Uri("https://metron.cloud/api/"),
+        Timeout = TimeSpan.FromSeconds(30)
     };
 
     public Metron(string username, string password)
@@ -100,6 +100,51 @@ public class Metron
         catch (JsonException je)
         {
             throw new ServiceException($"Unable to parse response from `{endpoint}/{query}` as Json", je);
+        }
+    }
+
+    public async Task<List<BaseResource>> ListArcs(Dictionary<string, string>? parameters = null)
+    {
+        try
+        {
+            var content = await PerformGetRequest(endpoint: "arc", parameters: parameters);
+            var response = JsonSerializer.Deserialize<ListResponse<BaseResource>>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
+            var results = response.Results;
+            if (response.Next != null)
+            {
+                var _parameters = parameters ?? new Dictionary<string, string>();
+                if (_parameters.ContainsKey("page"))
+                    _parameters["page"] = (int.Parse(_parameters["page"]) + 1).ToString();
+                else
+                    _parameters["page"] = 2.ToString();
+                results.AddRange(await ListArcs(parameters: _parameters));
+            }
+            return results;
+        }
+        catch (JsonException je)
+        {
+            throw new ServiceException("Unable to parse response as Json", je);
+        }
+    }
+
+    public async Task<Arc> GetArcByComicvine(long comicvineId)
+    {
+        var results = await ListArcs(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
+        var arcId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
+        return await GetArc(id: arcId);
+    }
+
+    public async Task<Arc> GetArc(long id)
+    {
+        try
+        {
+            var content = await PerformGetRequest(endpoint: $"arc/{id}");
+            return JsonSerializer.Deserialize<Arc>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
+        }
+        catch (JsonException je)
+        {
+            throw new ServiceException("Unable to parse response as Json", je);
+
         }
     }
 

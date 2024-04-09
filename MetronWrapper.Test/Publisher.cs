@@ -6,14 +6,8 @@ public class TestPublisher
     private Metron _metron;
 
     [OneTimeSetUp]
-    public void OneTimeSetUp()
+    public void BeforeTests()
     {
-        var patternLayout = new PatternLayout { ConversionPattern = "[%date{yyyy-MM-dd HH:mm:ss}] [%-5level] {%logger{2}} | %message%newline" };
-        patternLayout.ActivateOptions();
-        var consoleAppender = new ConsoleAppender { Layout = patternLayout };
-        consoleAppender.ActivateOptions();
-        BasicConfigurator.Configure(appender: consoleAppender);
-
         var username = Environment.GetEnvironmentVariable("METRON__USERNAME") ?? "IGNORED";
         var password = Environment.GetEnvironmentVariable("METRON__PASSWORD") ?? "IGNORED";
         _metron = new Metron(username: username, password: password);
