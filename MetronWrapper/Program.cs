@@ -15,23 +15,15 @@ class Program
         Console.WriteLine("Hello, World!");
         var metron = new Metron(username: "", password: "");
 
-        var publisherList = await metron.ListPublishers();
-        Console.WriteLine($"Publishers: {publisherList.Count}");
-        Console.WriteLine(publisherList[0].ToString());
-        var comicvinePublisher = await metron.GetPublisherByComicvine(comicvine: 364);
-        Console.WriteLine(comicvinePublisher);
-        var publisher = await metron.GetPublisher(id: 3);
-        Console.WriteLine(publisher);
-
-        /*var seriesList = await metron.ListSeries(parameters: new Dictionary<string, string> { { "publisher_id", 3.ToString() } });
+        var seriesList = await metron.ListSeries(parameters: new Dictionary<string, string> { { "publisher_id", 3.ToString() } });
         Console.WriteLine($"Series: {seriesList.Count}");
         Console.WriteLine(seriesList[0].ToString());
-        var comicvineSeries = await metron.GetSeriesByComicvine(comicvine: 104530);
+        var comicvineSeries = await metron.GetSeriesByComicvine(comicvineId: 104530);
         Console.WriteLine(comicvineSeries);
         var series = await metron.GetSeries(id: 2658);
         Console.WriteLine(series);
 
-        var issueList = await metron.ListIssues(parameters: new Dictionary<string, string> { { "series_id", 2658.ToString() } });
+        /*var issueList = await metron.ListIssues(parameters: new Dictionary<string, string> { { "series_id", 2658.ToString() } });
         Console.WriteLine($"Issues: {issueList.Count}");
         Console.WriteLine(issueList[0].ToString());
         var comicvineIssue = await metron.GetIssueByComicvine(comicvine: 623161);
@@ -75,7 +67,7 @@ public class Metron
         return builder.ToString().TrimEnd('&');
     }
 
-    private async Task<string?> PerformGetRequest(string endpoint, Dictionary<string, string>? parameters = null)
+    private async Task<string> PerformGetRequest(string endpoint, Dictionary<string, string>? parameters = null)
     {
         var query = parameters == null ? "" : QueryToString(query: parameters);
         try
@@ -94,15 +86,21 @@ public class Metron
             else
                 _logger.Error($"GET: {statusCode} - {endpoint}/query");
 
+            var content = await response.Content.ReadAsStringAsync();
             if (statusCode == 200)
-                return await response.Content.ReadAsStringAsync();
-            _logger.Error(await response.Content.ReadAsStringAsync());
+                return content;
+            if (statusCode == 404)
+                throw new ServiceException("Resource not found");
+            var mappedContent = JsonSerializer.Deserialize<dynamic>(content, _options) ?? throw new ServiceException($"Unable to parse response from `{endpoint}/{query}` as Json");
+            _logger.Error(mappedContent);
+            if (statusCode == 401)
+                throw new AuthenticationException(mappedContent.GetProperty("detail").GetString());
+            throw new ServiceException(mappedContent.GetProperty("detail").GetString());
         }
-        catch (HttpRequestException hre)
+        catch (JsonException je)
         {
-            _logger.Error($"Unable to make request to: {endpoint}/{query}", hre);
+            throw new ServiceException($"Unable to parse response from `{endpoint}/{query}` as Json", je);
         }
-        return null;
     }
 
     public async Task<List<BaseResource>> ListPublishers(Dictionary<string, string>? parameters = null)
@@ -110,11 +108,7 @@ public class Metron
         try
         {
             var content = await PerformGetRequest(endpoint: "publisher", parameters: parameters);
-            if (content == null)
-                return new List<BaseResource>();
-            var response = JsonSerializer.Deserialize<ListResponse<BaseResource>>(content, _options);
-            if (response == null)
-                return new List<BaseResource>();
+            var response = JsonSerializer.Deserialize<ListResponse<BaseResource>>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
             var results = response.Results;
             if (response.Next != null)
             {
@@ -129,33 +123,27 @@ public class Metron
         }
         catch (JsonException je)
         {
-            _logger.Error("Unable to parse response", je);
-            return new List<BaseResource>();
+            throw new ServiceException("Unable to parse response as Json", je);
         }
     }
 
-    public async Task<Publisher?> GetPublisherByComicvine(long comicvine)
+    public async Task<Publisher> GetPublisherByComicvine(long comicvineId)
     {
-        var results = await ListPublishers(parameters: new Dictionary<string, string> { { "cv_id", comicvine.ToString() } });
-        var publisherId = results.FirstOrDefault()?.Id;
-        if (publisherId == null)
-            return null;
-        return await GetPublisher(id: publisherId.Value);
+        var results = await ListPublishers(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
+        var publisherId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
+        return await GetPublisher(id: publisherId);
     }
 
-    public async Task<Publisher?> GetPublisher(long id)
+    public async Task<Publisher> GetPublisher(long id)
     {
         try
         {
             var content = await PerformGetRequest(endpoint: $"publisher/{id}");
-            if (content == null)
-                return null;
-            return JsonSerializer.Deserialize<Publisher>(content, _options);
+            return JsonSerializer.Deserialize<Publisher>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
         }
         catch (JsonException je)
         {
-            _logger.Error("Unable to parse response", je);
-            return null;
+            throw new ServiceException("Unable to parse response as Json", je);
 
         }
     }
@@ -165,11 +153,7 @@ public class Metron
         try
         {
             var content = await PerformGetRequest(endpoint: "series", parameters: parameters);
-            if (content == null)
-                return new List<CommonSeries>();
-            var response = JsonSerializer.Deserialize<ListResponse<CommonSeries>>(content, _options);
-            if (response == null)
-                return new List<CommonSeries>();
+            var response = JsonSerializer.Deserialize<ListResponse<CommonSeries>>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
             var results = response.Results;
             if (response.Next != null)
             {
@@ -184,33 +168,27 @@ public class Metron
         }
         catch (JsonException je)
         {
-            _logger.Error("Unable to parse response", je);
-            return new List<CommonSeries>();
+            throw new ServiceException("Unable to parse response as Json", je);
         }
     }
 
-    public async Task<Series?> GetSeriesByComicvine(long comicvine)
+    public async Task<Series> GetSeriesByComicvine(long comicvineId)
     {
-        var results = await ListSeries(parameters: new Dictionary<string, string> { { "cv_id", comicvine.ToString() } });
-        var seriesId = results.FirstOrDefault()?.Id;
-        if (seriesId == null)
-            return null;
-        return await GetSeries(id: seriesId.Value);
+        var results = await ListSeries(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
+        var seriesId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
+        return await GetSeries(id: seriesId);
     }
 
-    public async Task<Series?> GetSeries(long id)
+    public async Task<Series> GetSeries(long id)
     {
         try
         {
             var content = await PerformGetRequest(endpoint: $"series/{id}");
-            if (content == null)
-                return null;
-            return JsonSerializer.Deserialize<Series>(content, _options);
+            return JsonSerializer.Deserialize<Series>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
         }
         catch (JsonException je)
         {
-            _logger.Error("Unable to parse response", je);
-            return null;
+            throw new ServiceException("Unable to parse response as Json", je);
         }
     }
 
@@ -219,11 +197,7 @@ public class Metron
         try
         {
             var content = await PerformGetRequest(endpoint: "issue", parameters: parameters);
-            if (content == null)
-                return new List<CommonIssue>();
-            var response = JsonSerializer.Deserialize<ListResponse<CommonIssue>>(content, _options);
-            if (response == null)
-                return new List<CommonIssue>();
+            var response = JsonSerializer.Deserialize<ListResponse<CommonIssue>>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
             var results = response.Results;
             if (response.Next != null)
             {
@@ -238,33 +212,27 @@ public class Metron
         }
         catch (JsonException je)
         {
-            _logger.Error("Unable to parse response", je);
-            return new List<CommonIssue>();
+            throw new ServiceException("Unable to parse response as Json", je);
         }
     }
 
-    public async Task<Issue?> GetIssueByComicvine(long comicvine)
+    public async Task<Issue> GetIssueByComicvine(long comicvineId)
     {
-        var results = await ListIssues(parameters: new Dictionary<string, string> { { "cv_id", comicvine.ToString() } });
-        var issueId = results.FirstOrDefault()?.Id;
-        if (issueId == null)
-            return null;
-        return await GetIssue(id: issueId.Value);
+        var results = await ListIssues(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
+        var issueId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
+        return await GetIssue(id: issueId);
     }
 
-    public async Task<Issue?> GetIssue(long id)
+    public async Task<Issue> GetIssue(long id)
     {
         try
         {
             var content = await PerformGetRequest(endpoint: $"issue/{id}");
-            if (content == null)
-                return null;
-            return JsonSerializer.Deserialize<Issue>(content, _options);
+            return JsonSerializer.Deserialize<Issue>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
         }
         catch (JsonException je)
         {
-            _logger.Error("Unable to parse response", je);
-            return null;
+            throw new ServiceException("Unable to parse response as Json", je);
         }
     }
 }

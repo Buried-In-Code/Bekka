@@ -1,7 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace MetronWrapper.Common;
+﻿namespace MetronWrapper.Common;
 
 public record ListResponse<T>
 {
