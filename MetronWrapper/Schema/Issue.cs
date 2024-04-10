@@ -23,14 +23,20 @@ public record BasicSeries
     public required int YearBegan { get; init; }
 }
 
-public record IssueSeries
+public record IssueSeries : GenericItem
 {
     public List<GenericItem> Genres { get; init; } = [];
-    public required long Id { get; init; }
-    public required string Name { get; init; }
     public required GenericItem SeriesType { get; init; }
     public required string SortName { get; init; }
     public required int Volume { get; init; }
+}
+
+public record Variant
+{
+    public string? Name { get; init; } = null;
+    public string? Sku { get; init; } = null;
+    public string? Upc { get; init; } = null;
+    public required string Image { get; init; }
 }
 
 public record BaseIssue
@@ -42,14 +48,6 @@ public record BaseIssue
     public required long Id { get; init; }
     public required DateTime Modified { get; init; }
     public required string Number { get; init; }
-}
-
-public record Variant
-{
-    public string? Name { get; init; } = null;
-    public string? Sku { get; init; } = null;
-    public string? Upc { get; init; } = null;
-    public required string Image { get; init; }
 }
 
 public record CommonIssue : BaseIssue
@@ -70,6 +68,7 @@ public record Issue : BaseIssue
     public int? PageCount { get; init; } = null;
     public decimal? Price { get; init; } = null;
     public string? Sku { get; init; } = null;
+    public string? Title { get; init; } = null;
     public string? Upc { get; init; } = null;
     public List<BaseResource> Arcs { get; init; } = [];
     public List<BaseResource> Characters { get; init; } = [];
@@ -84,5 +83,4 @@ public record Issue : BaseIssue
     public required GenericItem Rating { get; init; }
     public required string ResourceUrl { get; init; }
     public required IssueSeries Series { get; init; }
-    public required string Title { get; init; }
 }

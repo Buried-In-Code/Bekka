@@ -22,10 +22,10 @@ public class TestArc
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.ComicvineId, Is.EqualTo(41751));
             Assert.That(result.Id, Is.EqualTo(1491));
-            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/arc/2024/03/07/d75aba2ca26349c89c3104690d32cc2f.jpg"));
             Assert.That(result.Name, Is.EqualTo("\"Bone\" The Great Cow Race"));
+            Assert.That(result.ComicvineId, Is.EqualTo(41751));
+            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/arc/2024/03/07/d75aba2ca26349c89c3104690d32cc2f.jpg"));
             Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/arc/bone-the-great-cow-race/"));
         });
     }
@@ -62,10 +62,10 @@ public class TestArc
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.ComicvineId, Is.EqualTo(41751));
             Assert.That(result.Id, Is.EqualTo(1491));
-            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/arc/2024/03/07/d75aba2ca26349c89c3104690d32cc2f.jpg"));
             Assert.That(result.Name, Is.EqualTo("\"Bone\" The Great Cow Race"));
+            Assert.That(result.ComicvineId, Is.EqualTo(41751));
+            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/arc/2024/03/07/d75aba2ca26349c89c3104690d32cc2f.jpg"));
             Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/arc/bone-the-great-cow-race/"));
         });
     }

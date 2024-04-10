@@ -22,14 +22,15 @@ public class TestCharacter
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.ComicvineId, Is.EqualTo(23092));
-            Assert.That(result.Creators[0].Id, Is.EqualTo(573));
             Assert.That(result.Id, Is.EqualTo(1234));
-            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/character/2019/01/21/Smiley-Bone.jpg"));
             Assert.That(result.Name, Is.EqualTo("Smiley Bone"));
-            Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/character/smiley-bone/"));
+            Assert.That(result.ComicvineId, Is.EqualTo(23092));
+            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/character/2019/01/21/Smiley-Bone.jpg"));
+            Assert.That(result.Alias, Is.Empty);
+            Assert.That(result.Creators[0].Id, Is.EqualTo(573));
             Assert.That(result.Teams, Is.Empty);
             Assert.That(result.Universes, Is.Empty);
+            Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/character/smiley-bone/"));
         });
     }
 
@@ -52,7 +53,7 @@ public class TestCharacter
     }
 
     [Test(Description = "Test using the ListCharacters function with an invalid search")]
-    public async Task TestListArcsFail()
+    public async Task TestListCharactersFail()
     {
         var results = await _metron.ListCharacters(parameters: new Dictionary<string, string> { { "name", "INVALID" } });
         Assert.That(results, Is.Empty);
@@ -65,14 +66,15 @@ public class TestCharacter
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.ComicvineId, Is.EqualTo(23092));
-            Assert.That(result.Creators[0].Id, Is.EqualTo(573));
             Assert.That(result.Id, Is.EqualTo(1234));
-            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/character/2019/01/21/Smiley-Bone.jpg"));
             Assert.That(result.Name, Is.EqualTo("Smiley Bone"));
-            Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/character/smiley-bone/"));
+            Assert.That(result.ComicvineId, Is.EqualTo(23092));
+            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/character/2019/01/21/Smiley-Bone.jpg"));
+            Assert.That(result.Alias, Is.Empty);
+            Assert.That(result.Creators[0].Id, Is.EqualTo(573));
             Assert.That(result.Teams, Is.Empty);
             Assert.That(result.Universes, Is.Empty);
+            Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/character/smiley-bone/"));
         });
     }
 
