@@ -18,16 +18,16 @@ public class TestPublisher
     [Test(Description = "Test using the GetPublisher function with a valid Id")]
     public async Task TestGetPublisher()
     {
-        var result = await _metron.GetPublisher(id: 3);
+        var result = await _metron.GetPublisher(id: 19);
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.ComicvineId, Is.EqualTo(364));
-            Assert.That(result.Founded, Is.EqualTo(1986));
-            Assert.That(result.Id, Is.EqualTo(3));
-            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/publisher/2018/11/16/dark-horse.jpg"));
-            Assert.That(result.Name, Is.EqualTo("Dark Horse Comics"));
-            Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/publisher/dark-horse-comics/"));
+            Assert.That(result.Id, Is.EqualTo(19));
+            Assert.That(result.Name, Is.EqualTo("Cartoon Books"));
+            Assert.That(result.ComicvineId, Is.EqualTo(490));
+            Assert.That(result.Founded, Is.EqualTo(1991));
+            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/publisher/2019/01/21/cartoon-books.jpg"));
+            Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/publisher/cartoon-books/"));
         });
     }
 
@@ -40,12 +40,12 @@ public class TestPublisher
     [Test(Description = "Test using the ListPublishers function with a valid search")]
     public async Task TestListPublishers()
     {
-        var results = await _metron.ListPublishers(parameters: new Dictionary<string, string> { { "name", "Dark Horse Comics" } });
+        var results = await _metron.ListPublishers(parameters: new Dictionary<string, string> { { "name", "Cartoon Books" } });
         Assert.That(results, Has.Count.EqualTo(1));
         Assert.Multiple(() =>
         {
-            Assert.That(results[0].Id, Is.EqualTo(3));
-            Assert.That(results[0].Name, Is.EqualTo("Dark Horse Comics"));
+            Assert.That(results[0].Id, Is.EqualTo(19));
+            Assert.That(results[0].Name, Is.EqualTo("Cartoon Books"));
         });
     }
 
@@ -59,16 +59,16 @@ public class TestPublisher
     [Test(Description = "Test using the GetPublisherByComicvine function with a valid Id")]
     public async Task TestGetPublisherByComicvine()
     {
-        var result = await _metron.GetPublisherByComicvine(comicvineId: 364);
+        var result = await _metron.GetPublisherByComicvine(comicvineId: 490);
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.ComicvineId, Is.EqualTo(364));
-            Assert.That(result.Founded, Is.EqualTo(1986));
-            Assert.That(result.Id, Is.EqualTo(3));
-            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/publisher/2018/11/16/dark-horse.jpg"));
-            Assert.That(result.Name, Is.EqualTo("Dark Horse Comics"));
-            Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/publisher/dark-horse-comics/"));
+            Assert.That(result.Id, Is.EqualTo(19));
+            Assert.That(result.Name, Is.EqualTo("Cartoon Books"));
+            Assert.That(result.ComicvineId, Is.EqualTo(490));
+            Assert.That(result.Founded, Is.EqualTo(1991));
+            Assert.That(result.Image, Is.EqualTo("https://static.metron.cloud/media/publisher/2019/01/21/cartoon-books.jpg"));
+            Assert.That(result.ResourceUrl, Is.EqualTo("https://metron.cloud/publisher/cartoon-books/"));
         });
     }
 
