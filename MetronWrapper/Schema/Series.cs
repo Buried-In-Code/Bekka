@@ -27,7 +27,7 @@ public record CommonSeries : BaseSeries
 public record Series : BaseSeries
 {
     [JsonPropertyName("cv_id")]
-    public long? Comicvine { get; init; } = null;
+    public long? ComicvineId { get; init; } = null;
     [JsonPropertyName("desc")]
     public string? Description { get; init; } = null;
     public int? YearEnd { get; init; } = null;
