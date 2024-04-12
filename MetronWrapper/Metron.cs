@@ -431,5 +431,39 @@ namespace MetronWrapper
                 throw new ServiceException("Unable to parse response as Json", je);
             }
         }
+
+        public async Task<List<BaseResource>> ListUniverses(Dictionary<string, string>? parameters = null)
+        {
+            try
+            {
+                var content = await GetRequest(endpoint: "universe", parameters: parameters);
+                var response = JsonSerializer.Deserialize<ListResponse<BaseResource>>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
+                var results = response.Results;
+                if (response.Next != null)
+                {
+                    var _parameters = parameters ?? [];
+                    _parameters["page"] = _parameters.TryGetValue("page", out string? value) ? (int.Parse(value) + 1).ToString() : 2.ToString();
+                    results.AddRange(await ListUniverses(parameters: _parameters));
+                }
+                return results;
+            }
+            catch (JsonException je)
+            {
+                throw new ServiceException("Unable to parse response as Json", je);
+            }
+        }
+
+        public async Task<Universe> GetUniverse(long id)
+        {
+            try
+            {
+                var content = await GetRequest(endpoint: $"universe/{id}");
+                return JsonSerializer.Deserialize<Universe>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
+            }
+            catch (JsonException je)
+            {
+                throw new ServiceException("Unable to parse response as Json", je);
+            }
+        }
     }
 }
