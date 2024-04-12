@@ -390,5 +390,46 @@ namespace MetronWrapper
                 throw new ServiceException("Unable to parse response as Json", je);
             }
         }
+
+        public async Task<List<BaseResource>> ListTeams(Dictionary<string, string>? parameters = null)
+        {
+            try
+            {
+                var content = await GetRequest(endpoint: "team", parameters: parameters);
+                var response = JsonSerializer.Deserialize<ListResponse<BaseResource>>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
+                var results = response.Results;
+                if (response.Next != null)
+                {
+                    var _parameters = parameters ?? [];
+                    _parameters["page"] = _parameters.TryGetValue("page", out string? value) ? (int.Parse(value) + 1).ToString() : 2.ToString();
+                    results.AddRange(await ListTeams(parameters: _parameters));
+                }
+                return results;
+            }
+            catch (JsonException je)
+            {
+                throw new ServiceException("Unable to parse response as Json", je);
+            }
+        }
+
+        public async Task<Team> GetTeamByComicvine(long comicvineId)
+        {
+            var results = await ListTeams(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
+            var seriesId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
+            return await GetTeam(id: seriesId);
+        }
+
+        public async Task<Team> GetTeam(long id)
+        {
+            try
+            {
+                var content = await GetRequest(endpoint: $"team/{id}");
+                return JsonSerializer.Deserialize<Team>(content, _options) ?? throw new ServiceException("Unable to parse response as Json");
+            }
+            catch (JsonException je)
+            {
+                throw new ServiceException("Unable to parse response as Json", je);
+            }
+        }
     }
 }
