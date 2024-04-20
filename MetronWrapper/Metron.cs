@@ -80,6 +80,14 @@ namespace MetronWrapper
             {
                 throw new ServiceException($"Unable to parse response from `{endpoint}/{query}` as Json", je);
             }
+            catch (TaskCanceledException tce)
+            {
+                throw new ServiceException($"`{endpoint}/{query}` took too long to respond", tce);
+            }
+            catch (HttpRequestException hre)
+            {
+                throw new ServiceException($"Failed request to `{endpoint}/{query}`", hre);
+            }
         }
 
         public async Task<string> GetRequest(string endpoint, Dictionary<string, string>? parameters = null)
