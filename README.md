@@ -28,7 +28,7 @@ namespace Program
         {
             var (username, password) = LoadConfig(); // Load your credentials from config file or env variables
 
-            var session = new Metron(username, password);
+            var session = new Metron(username: username, password: password);
 
             // Get all Marvel comics for the week of 2023-Apr-15
             var weeklyComics = await session.ListIssues(parameters: new Dictionary<string, string>
