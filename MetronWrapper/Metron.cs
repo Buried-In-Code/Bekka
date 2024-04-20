@@ -23,14 +23,14 @@ namespace MetronWrapper
         };
         private readonly SQLiteCache? _cache;
 
-        public Metron(string username, string password, SQLiteCache? cache = null, TimeSpan timeout = TimeSpan.FromSeconds(30))
+        public Metron(string username, string password, SQLiteCache? cache = null, TimeSpan? timeout = null)
         {
             _client.DefaultRequestHeaders.Add("Accept", "application/json");
             var token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
             _client.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
             var runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.Split(" ");
             _client.DefaultRequestHeaders.Add("User-Agent", $"MetronWrapper/0.1.0 ({Environment.OSVersion.Platform}/{Environment.OSVersion.Version}; {runtime[0]}/{runtime[1]})");
-            _client.Timeout = timeout;
+            _client.Timeout = timeout ?? TimeSpan.FromSeconds(30);
 
             _cache = cache;
 
