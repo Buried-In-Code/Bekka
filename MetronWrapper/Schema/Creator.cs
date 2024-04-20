@@ -5,7 +5,6 @@ namespace MetronWrapper.Schema;
 public record Creator : BaseResource
 {
     public DateTime? Birth { get; init; } = null;
-
     [JsonPropertyName("cv_id")]
     public long? ComicvineId { get; init; } = null;
     public DateTime? Death { get; init; } = null;

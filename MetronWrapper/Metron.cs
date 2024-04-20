@@ -20,17 +20,17 @@ namespace MetronWrapper
         private readonly HttpClient _client = new()
         {
             BaseAddress = new Uri("https://metron.cloud/api/"),
-            Timeout = TimeSpan.FromSeconds(30)
         };
         private readonly SQLiteCache? _cache;
 
-        public Metron(string username, string password, SQLiteCache? cache = null)
+        public Metron(string username, string password, SQLiteCache? cache = null, TimeSpan timeout = TimeSpan.FromSeconds(30))
         {
             _client.DefaultRequestHeaders.Add("Accept", "application/json");
             var token = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
             _client.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
             var runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.Split(" ");
             _client.DefaultRequestHeaders.Add("User-Agent", $"MetronWrapper/0.1.0 ({Environment.OSVersion.Platform}/{Environment.OSVersion.Version}; {runtime[0]}/{runtime[1]})");
+            _client.Timeout = timeout;
 
             _cache = cache;
 
@@ -120,13 +120,6 @@ namespace MetronWrapper
             }
         }
 
-        public async Task<Arc> GetArcByComicvine(long comicvineId)
-        {
-            var results = await ListArcs(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
-            var arcId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
-            return await GetArc(id: arcId);
-        }
-
         public async Task<Arc> GetArc(long id)
         {
             try
@@ -160,13 +153,6 @@ namespace MetronWrapper
             {
                 throw new ServiceException("Unable to parse response as Json", je);
             }
-        }
-
-        public async Task<Character> GetCharacterByComicvine(long comicvineId)
-        {
-            var results = await ListCharacters(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
-            var characterId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
-            return await GetCharacter(id: characterId);
         }
 
         public async Task<Character> GetCharacter(long id)
@@ -204,13 +190,6 @@ namespace MetronWrapper
             }
         }
 
-        public async Task<Creator> GetCreatorByComicvine(long comicvineId)
-        {
-            var results = await ListCreators(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
-            var creatorId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
-            return await GetCreator(id: creatorId);
-        }
-
         public async Task<Creator> GetCreator(long id)
         {
             try
@@ -246,13 +225,6 @@ namespace MetronWrapper
             }
         }
 
-        public async Task<Issue> GetIssueByComicvine(long comicvineId)
-        {
-            var results = await ListIssues(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
-            var issueId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
-            return await GetIssue(id: issueId);
-        }
-
         public async Task<Issue> GetIssue(long id)
         {
             try
@@ -285,13 +257,6 @@ namespace MetronWrapper
             {
                 throw new ServiceException("Unable to parse response as Json", je);
             }
-        }
-
-        public async Task<Publisher> GetPublisherByComicvine(long comicvineId)
-        {
-            var results = await ListPublishers(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
-            var publisherId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
-            return await GetPublisher(id: publisherId);
         }
 
         public async Task<Publisher> GetPublisher(long id)
@@ -350,13 +315,6 @@ namespace MetronWrapper
             }
         }
 
-        public async Task<Series> GetSeriesByComicvine(long comicvineId)
-        {
-            var results = await ListSeries(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
-            var seriesId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
-            return await GetSeries(id: seriesId);
-        }
-
         public async Task<Series> GetSeries(long id)
         {
             try
@@ -410,13 +368,6 @@ namespace MetronWrapper
             {
                 throw new ServiceException("Unable to parse response as Json", je);
             }
-        }
-
-        public async Task<Team> GetTeamByComicvine(long comicvineId)
-        {
-            var results = await ListTeams(parameters: new Dictionary<string, string> { { "cv_id", comicvineId.ToString() } });
-            var seriesId = results.FirstOrDefault()?.Id ?? throw new ServiceException("Resource not found");
-            return await GetTeam(id: seriesId);
         }
 
         public async Task<Team> GetTeam(long id)
