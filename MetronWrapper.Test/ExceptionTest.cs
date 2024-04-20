@@ -24,7 +24,7 @@ public class ExceptionTest
     {
         var username = Environment.GetEnvironmentVariable("METRON__USERNAME") ?? "IGNORED";
         var password = Environment.GetEnvironmentVariable("METRON__PASSWORD") ?? "IGNORED";
-        var session = new Metron(username: username, password: password, cache: null, timeout = TimeSpan.FromMillis(1));
+        var session = new Metron(username: username, password: password, cache: null, timeout: TimeSpan.FromMilliseconds(1));
         Assert.ThrowsAsync<ServiceException>(async () => await session.GetIssue(id: 1088));
     }
 }
