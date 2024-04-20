@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace MetronWrapper.Schema;
+namespace Bekka.Schema;
 
 public record Universe : BaseResource
 {

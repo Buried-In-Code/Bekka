@@ -1,4 +1,4 @@
-namespace MetronWrapper.Test.Schema;
+namespace Bekka.Test.Schema;
 
 [TestFixture]
 public class SeriesTest
