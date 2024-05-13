@@ -2,9 +2,9 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using log4net;
-
 using Bekka.Schema;
+
+using log4net;
 
 namespace Bekka
 {
