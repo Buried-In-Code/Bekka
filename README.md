@@ -11,6 +11,7 @@ A C#/.Net wrapper for the [metron.cloud](https://metron.cloud) API.
 
 ## Installation
 
+_Not Yet Implemented_
 ```sh
 dotnet add package Bekka
 ```
